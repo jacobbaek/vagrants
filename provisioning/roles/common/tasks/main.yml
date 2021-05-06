@@ -1,4 +1,12 @@
 ---
+
+# register ssh public key
+- name: register ssh public key into authorized_keys file
+  authorized_key:
+    user: vagrant
+    state: present
+    key: "{{ lookup('file', '/home/jacob/.ssh/id_rsa.pub')}}"
+
 - name: install default packages on CentOS7
   yum:
     name: ["wget", "vim", "net-tools", "epel-release"]
