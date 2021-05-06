@@ -1,0 +1,40 @@
+---
+- name: install default packages on CentOS7
+  yum:
+    name: ["wget", "vim", "net-tools", "epel-release"]
+    state: latest
+  tags: always
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '7'
+
+- name: install default packages on Ubuntu
+  yum:
+    name: ["wget", "vim"]
+    state: latest
+  tags: always
+  when: ansible_distribution == "Ubuntu"
+
+# can login with vagrant(ID)/vagrant(password) 
+- name: setup the sshd config for connecting with password
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^PasswordAuthentication no"
+    line: "PasswordAuthentication yes"
+  tags: always
+
+- name: setup the sshd config for connecting as root permission
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^#PermitRootLogin yes"
+    line: "PermitRootLogin yes"
+  tags: always
+
+- name: restart sshd service
+  systemd:
+    name: sshd
+    state: restarted
+  tags: always
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive

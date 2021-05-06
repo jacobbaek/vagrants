@@ -1,0 +1,40 @@
+---
+- name: install latest packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "python3-pip"
+    - "git"
+
+#- name: generate ssh-key
+#  openssh_keypair:
+#    path: /root/.ssh/id_rsa
+
+#- name: install ansible by pip
+#  pip:
+#    name: ansible==2.9.15
+#
+- name: generate host file 
+  blockinfile:
+    path: /etc/hosts
+    insertafter: EOF
+    block: "{{ lookup('file', 'roles/deploy/files/hosts' )}}"
+
+- name: configure allowing ip address at chrony.conf
+  lineinfile:
+    line: "allow 192.168.0.0/16"
+    path: /etc/chrony.conf
+    regexp: "^#allow"
+    insertafter: "^#allow"
+    state: present
+
+- name: configure stratum 3 at chrony.conf
+  lineinfile:
+    line: "local stratum 3"
+    path: /etc/chrony.conf
+    regexp: "^#local"
+    insertafter: "^#local"
+    state: present
+  notify: 
+    - "restart chronyd"

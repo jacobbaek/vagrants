@@ -1,0 +1,1 @@
+{"dependencies":[["vagrant-guest_ansible",["= 0.0.4"]]],"checksum":"e0cce3623dbc950d3e9b542d6c38e9d9d9eca7c62bfaf2b61ef68a944b579743","vagrant_version":"2.2.14"}

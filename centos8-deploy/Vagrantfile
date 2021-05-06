@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/8"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 16384
+	vb.cpus = 4
+	vb.gui = false
+  end
+
+  config.vm.define "centos8" do |centos8|
+    centos8.vm.network :private_network, ip: "192.168.56.11"
+    centos8.vm.hostname = "centos8-server"
+    centos8.vm.provision provisioner do |ansible|
+    ansible.playbook = "../provisioning/playbook.yml"
+    ansible.tags="centos"
+    end
+  end
+end

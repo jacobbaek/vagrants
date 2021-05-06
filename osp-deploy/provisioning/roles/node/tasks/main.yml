@@ -1,0 +1,9 @@
+---
+- name: configure allowing ip address at chrony.conf
+  lineinfile:
+    line: "#server "
+    path: /etc/chrony.conf
+    regexp: "^server "
+    state: present
+  notify: 
+    - "restart chronyd"

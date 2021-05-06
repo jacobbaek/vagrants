@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+VAGRANTFILE_API_VERSION = "2"
+
+ceph_cluster = {
+  "ceph001" => { :ip => "192.168.56.20", :cpus => 2, :mem => 4096 },
+  "ceph002" => { :ip => "192.168.56.21", :cpus => 2, :mem => 4096 },
+  "ceph003" => { :ip => "192.168.56.22", :cpus => 2, :mem => 4096 },
+}
+
+ctrl_cluster = {
+  "controller001" => { :ip => "192.168.56.30", :cpus => 2, :mem => 4096 }
+}
+
+com_cluster = {
+  "compute001" => { :ip => "192.168.56.40", :cpus => 2, :mem => 4096 }
+}
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "centos/7"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  cluster.each_with_index do |(hostname, info), index|
+    config.vm.define hostname do |cfg|
+      config.vm.provider "virtualbox" do |vb|
+        vb.memory = 6144
+          vb.cpus = 2
+          vb.gui = false
+      end
+    end
+  end
+
+  config.vm.define "ceph001" do |controller|
+    controller.vm.network :private_network, ip: "192.168.56.21"
+    controller.vm.hostname = "ceph001"
+    controller.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="controller"
+    end
+  end
+
+  config.vm.define "controller" do |controller|
+    controller.vm.network :private_network, ip: "192.168.56.21"
+    controller.vm.hostname = "controller"
+    controller.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="controller"
+    end
+  end
+
+  config.vm.define "compute" do |compute|
+    compute.vm.network :private_network, ip: "192.168.56.22"
+    compute.vm.hostname = "compute"
+    compute.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="compute"
+    end
+  end
+
+  config.vm.define "deploy" do |deploy|
+    deploy.vm.network :private_network, ip: "192.168.56.5"
+    deploy.vm.hostname = "deploy"
+    deploy.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="deploy"
+    end
+  end
+end
+

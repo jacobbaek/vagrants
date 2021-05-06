@@ -1,0 +1,84 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+# https://www.vagrantup.com/docs/experimental
+#export VAGRANT_EXPERIMENTAL="disks"
+deploy_disk = '/mnt/e/99. VMImages/deploy-disk'
+ceph001_disk1 = '/mnt/e/99. VMImages/ceph001-disk1'
+ceph002_disk1 = '/mnt/e/99. VMImages/ceph002-disk1'
+
+Vagrant.configure("2") do |config|
+  config.env.enable
+  config.vm.box = "centos/7"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 6144
+    vb.cpus = 4
+    vb.gui = false
+  end
+
+  config.vm.define "deploy" do |deploy|
+    deploy.vm.network :private_network, ip: "192.168.56.5"
+    deploy.vm.network "private_network", ip: "10.10.10.5", virtualbox__intnet: "deploy-network"
+    deploy.vm.network "private_network", ip: "30.30.30.5", virtualbox__intnet: "storage-network"
+    deploy.vm.network "private_network", ip: "40.40.40.5", virtualbox__intnet: "monitor-network"
+    deploy.vm.hostname = "deploy"
+    deploy.vm.disk :disk, name: "disk1", size: "10GB"
+#    unless File.exist?(deploy_disk)
+#      deploy.vm.customize ['createhd', '--filename', deploy_disk, '--size', 10 * 1024]
+#    end
+#    deploy.vm.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', deploy_disk]
+    deploy.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="deploy"
+    end
+  end
+
+  config.vm.define "ceph001" do |ceph001|
+    ceph001.vm.network :private_network, ip: "192.168.56.11"
+    ceph001.vm.network "private_network", ip: "10.10.10.11", virtualbox__intnet: "deploy-network"
+    ceph001.vm.network "private_network", ip: "30.30.30.11", virtualbox__intnet: "storage-network"
+    ceph001.vm.network "private_network", ip: "40.40.40.11", virtualbox__intnet: "monitor-network"
+    ceph001.vm.hostname = "ceph001"
+#    unless File.exist?(ceph001_disk1)
+#      ceph001.vm.customize ['createhd', '--filename', ceph001_disk1, '--size', 10 * 1024]
+#    end
+#    ceph001.vm.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', ceph001_disk1]
+#    (0 ..3).each do |i|
+#      ceph001.vm.disk :disk, name: "osd-#{i}", size: "10GB"
+#    end
+#    ## OR
+#    ceph001.vm.disk :disk, name: "osd1", size: "10GB"
+#    ceph001.vm.disk :disk, name: "osd2", size: "10GB"
+#    ceph001.vm.disk :disk, name: "osd3", size: "10GB"
+    ceph001.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="ceph"
+    end
+  end
+
+  config.vm.define "ceph002" do |ceph002|
+    ceph002.vm.network :private_network, ip: "192.168.56.12"
+    ceph002.vm.network "private_network", ip: "10.10.10.12", virtualbox__intnet: "deploy-network"
+    ceph002.vm.network "private_network", ip: "30.30.30.12", virtualbox__intnet: "storage-network"
+    ceph002.vm.network "private_network", ip: "40.40.40.12", virtualbox__intnet: "monitor-network"
+    ceph002.vm.hostname = "ceph002"
+    ceph002.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="ceph"
+    end
+  end
+
+  config.vm.define "ceph003" do |ceph003|
+    ceph003.vm.network :private_network, ip: "192.168.56.13"
+    ceph003.vm.network "private_network", ip: "10.10.10.13", virtualbox__intnet: "deploy-network"
+    ceph003.vm.network "private_network", ip: "30.30.30.13", virtualbox__intnet: "storage-network"
+    ceph003.vm.network "private_network", ip: "40.40.40.13", virtualbox__intnet: "monitor-network"
+    ceph003.vm.hostname = "ceph003"
+    ceph003.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="ceph"
+    end
+  end
+end

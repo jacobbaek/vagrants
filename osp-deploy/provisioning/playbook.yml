@@ -1,0 +1,20 @@
+---
+- hosts: deploy
+  become: true
+  gather_facts: false
+  
+  roles:
+    - role: common
+    - role: deploy
+  tags: 
+    - deploy
+
+- hosts: node001:node002:node003
+  become: true
+  gather_facts: false
+  
+  roles:
+    - role: common
+    - role: node
+  tags:
+    - node

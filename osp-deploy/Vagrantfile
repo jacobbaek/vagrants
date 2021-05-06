@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+# https://www.vagrantup.com/docs/experimental
+#export VAGRANT_EXPERIMENTAL="disks"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 6144
+    vb.cpus = 4
+    vb.gui = false
+  end
+
+  config.vm.define "deploy" do |deploy|
+    deploy.vm.network :private_network, ip: "192.168.56.5"
+    #deploy.vm.network "private_network", ip: "100.100.100.5", virtualbox__intnet: "external-network"
+    deploy.vm.network "private_network", ip: "10.10.10.5", virtualbox__intnet: "deploy-network"
+    deploy.vm.network "private_network", ip: "30.30.30.5", virtualbox__intnet: "storage-network"
+    deploy.vm.network "private_network", ip: "40.40.40.5", virtualbox__intnet: "monitor-network"
+    deploy.vm.hostname = "deploy"
+    deploy.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="deploy"
+    end
+  end
+
+  config.vm.define "node001" do |node001|
+    node001.vm.network :private_network, ip: "192.168.56.11"
+    node001.vm.network "private_network", ip: "10.10.10.11", virtualbox__intnet: "deploy-network"
+    node001.vm.network "private_network", ip: "30.30.30.11", virtualbox__intnet: "storage-network"
+    node001.vm.network "private_network", ip: "40.40.40.11", virtualbox__intnet: "monitor-network"
+    node001.vm.hostname = "node001"
+    node001.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="node"
+    end
+  end
+
+  config.vm.define "node002" do |node002|
+    node002.vm.network :private_network, ip: "192.168.56.12"
+    node002.vm.network "private_network", ip: "10.10.10.12", virtualbox__intnet: "deploy-network"
+    node002.vm.network "private_network", ip: "30.30.30.12", virtualbox__intnet: "storage-network"
+    node002.vm.network "private_network", ip: "40.40.40.12", virtualbox__intnet: "monitor-network"
+    node002.vm.hostname = "node002"
+    node002.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="node"
+    end
+  end
+
+  config.vm.define "node003" do |node003|
+    node003.vm.network :private_network, ip: "192.168.56.13"
+    node003.vm.network "private_network", ip: "10.10.10.13", virtualbox__intnet: "deploy-network"
+    node003.vm.network "private_network", ip: "30.30.30.13", virtualbox__intnet: "storage-network"
+    node003.vm.network "private_network", ip: "40.40.40.13", virtualbox__intnet: "monitor-network"
+    node003.vm.hostname = "node003"
+    node003.vm.provision provisioner do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+    ansible.tags="node"
+    end
+  end
+end

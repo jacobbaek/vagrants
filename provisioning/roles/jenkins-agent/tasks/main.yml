@@ -1,0 +1,9 @@
+---
+- name: install packages that can use in Jenkins Slave agent.
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - "java-11-openjdk"
+    - "git"
+    - "unzip"

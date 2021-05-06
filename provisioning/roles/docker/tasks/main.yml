@@ -1,0 +1,43 @@
+---
+# install docker service
+- name: add repo for docker
+  yum_repository:
+    name: docker-ce
+    description: docker-ce
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgcheck: no
+
+- name: install docker packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  when:
+    - ansible_distribution_major_version == "7"
+
+- name: install docker packages
+  dnf:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  when:
+    - ansible_distribution_major_version == "8"
+
+# Restart docker service
+- name: systemctl enable docker
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: get docker-compose tool
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 755

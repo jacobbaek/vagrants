@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+Vagrant.configure("2") do |config|
+  # https://app.vagrantup.com/ubuntu/boxes/focal64
+  config.vm.box = "ubuntu/focal64"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 8192
+	vb.cpus = 4
+	#vb.gui = false
+    vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+  end
+
+  config.vm.define "ubuntu20" do |ubuntu|
+    ubuntu.vm.network :private_network, ip: "192.168.56.20"
+#    ubuntu.vm.network :public_network, ip: "100.100.100.100", virtualbox__intnet: "external-network"
+    ubuntu.vm.hostname = "ubuntu20"
+    ubuntu.vm.provision provisioner do |ansible|
+    ubuntu.vm.synced_folder '.', '/vagrant', disabled: true
+    ubuntu.vm.boot_timeout
+    ansible.playbook = "../provisioning/playbook.yml"
+    ansible.tags="ubuntu"
+    end
+  end
+end
