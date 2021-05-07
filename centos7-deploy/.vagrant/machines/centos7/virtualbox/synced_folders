@@ -1,1 +1,0 @@
-{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/jacob/workspace/vagrants/centos7-deploy","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
