@@ -20,9 +20,4 @@ Vagrant.configure("2") do |config|
     ansible.tags="opensuse"
     end
   end
-
-  config.vm.cloud_init :user_data do |cloud_init|
-    cloud_init.content_type = "text/cloud-config"
-    cloud_init.path = "../provisioning/config.cfg"
-  end
 end

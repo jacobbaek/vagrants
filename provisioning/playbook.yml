@@ -13,6 +13,13 @@
   tags:
   - ubuntu
 
+- hosts: opensuse15
+  become: true
+  roles:
+  - role: common
+  tags:
+  - opensuse
+
 - hosts: all
   gather_facts: false
   become: true
