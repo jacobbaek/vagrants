@@ -11,8 +11,8 @@ Also you can deploy application using Ansible.
    cd centos7-deploy
    vagrant up
    ```
-2. (optional)If you want to ansible playbook alone, should check 'vagrants/provisioning/inventory/inventory.lst
-   inventory.lst have to same host information with IP address on Vagrantfile.
+2. (optional)If you want to ansible playbook alone, should check 'vagrants/provisioning/hosts.ini
+   host.ini have to same host information with IP address on Vagrantfile.
    ```
    cd provisioning
    # assumed that inventory.lst already be modified.
