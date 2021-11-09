@@ -1,13 +1,16 @@
 ---
-- hosts: centos8,centos7
+- hosts: centos7,centos8,rocky8
   become: true
+  #gather_facts: false
   roles:
   - role: common
   tags:
   - centos
+  - rocky
 
 - hosts: ubuntu20
   become: true
+  #gather_facts: false
   roles:
   - role: common
   tags:

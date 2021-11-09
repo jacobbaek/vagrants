@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi:set ft=ruby
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "rockylinux/8"
+  provisioner = Vagrant::Util::Platform.windows? ? :guest_ansible : :ansible
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 4096
+	vb.cpus = 4
+	#vb.gui = false
+    #vb.customize ["modifyvm", :id, "--nictype1", "virtio"]        
+  end
+
+  config.ssh.insert_key = true
+  #config.ssh.username = "rocky"
+  #config.ssh.private_key_path = ["/home/jacob/.ssh/id_rsa"]
+
+  config.vm.define "rocky8" do |rocky|
+    rocky.vm.network :private_network, ip: "192.168.56.9"
+    rocky.vm.hostname = "rocky8-server"
+    # if enable below line, ansible playbook will be failed. because authorized_keys will copy as new one.
+    #rocky.vm.provision "file", source: "/home/jacob/.ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
+    rocky.vm.provision provisioner do |ansible|
+    rocky.vm.synced_folder '.', '/vagrant', disabled: true
+    #rocky.vm.synced_folder '.', '/vagrant', type: "rsync"
+    #rocky.vm.synced_folder '.', '/vagrant', type: "virtualbox"
+    #rocky.vm.synced_folder ".", "/vagrant", :nfs => { :mount_options => ["dmode=777","fmode=777"] }
+    rocky.vm.boot_timeout
+    ansible.playbook = "../provisioning/playbook.yml"
+    ansible.tags="rocky"
+    end
+  end
+end
